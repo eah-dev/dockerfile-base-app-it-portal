@@ -1,4 +1,4 @@
-FROM nginx:1.27-alpine
+FROM nginx:1.29-alpine
 # Install prerequisites required for tools and extensions installed later on.
 # RUN apk add --update bash nano su-exec mc
 
