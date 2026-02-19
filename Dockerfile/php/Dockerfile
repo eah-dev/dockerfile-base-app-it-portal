@@ -1,6 +1,6 @@
 ARG PHP_VERSION=8.2
 ARG BUILD_PLATFORM=alpine
-ARG ALPINE_VERSION=3.22
+ARG ALPINE_VERSION=3.23
 
 FROM php:${PHP_VERSION}-fpm-${BUILD_PLATFORM}${ALPINE_VERSION}
 
@@ -34,6 +34,7 @@ RUN set -ex; \
         yaml-dev \
         zlib-dev \
         curl \
+		gettext \
 		;\
 	#
 	######
