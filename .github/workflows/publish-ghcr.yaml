@@ -1,18 +1,11 @@
 #
-name: Create and publish a Docker image
+name: Create and publish Docker images for PHP und web (Nginx)
 
 on:
-  pull_request:
   schedule:
-    - cron: 0 2 * * Mon
-  # Configures this workflow to run every time a change is pushed to the branch called `release`.
-  push:
-
-# Defines two custom environment variables for the workflow.
-# These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+    # Every Monday at 02:00 UTC
+    - cron: "0 2 * * 1"
+  workflow_dispatch: {}  # Manually triggered
 
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
@@ -34,20 +27,9 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PATH }}
-
-      # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image.
-      # The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ${{ env.REGISTRY }}/${{ github.repository }}-php
-            ${{ env.REGISTRY }}/${{ github.repository }}-web
 
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path.
@@ -60,8 +42,7 @@ jobs:
           context: .
           file: Dockerfile/php/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}-php:latest
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/${{ github.repository }}-php:latest
 
       - name: Build and push Docker image (Nginx)
         id: build_push_nginx
@@ -70,5 +51,4 @@ jobs:
           context: .
           file: Dockerfile/nginx/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}-web:latest
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/${{ github.repository }}-web:latest
